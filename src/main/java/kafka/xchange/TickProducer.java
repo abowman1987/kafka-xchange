@@ -43,6 +43,9 @@ class TickerProducerRunnable implements Runnable {
         this.topicName = "ticks";
         this.producer = producer;
     }
+    
+
+    
 
     public void run() {
         Ticker ticker = null;
@@ -62,10 +65,14 @@ class TickerProducerRunnable implements Runnable {
     }
 }
 
-public class TickProducer {
-    private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
+public class TickProducer {
+	
+    private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    static String ExCheck;
+    
     public static void main(String[] args) throws IOException {
+    	
         Properties props = new Properties();
         props.put("metadata.broker.list", "localhost:9092");
         props.put("serializer.class", "kafka.serializer.StringEncoder");
@@ -90,6 +97,53 @@ public class TickProducer {
             loadedExchanges.add(loadedExchange);
         }
 
+        Iterator<String> ourExchangesCounter = configuredExchanges.iterator(); //iterator for loop determining number of exchanges in input file
+        int checkCount = 0; //counter for determining the maximum number of array indices for an input check
+        while(ourExchangesCounter.hasNext()){
+        	checkCount++;
+        	ourExchangesCounter.next();
+        }
+        
+        String[] testVal = new String[checkCount + 1]; 	//string array for storing values checked within file
+        Iterator<String> ourExchangesChecker = configuredExchanges.iterator(); 	//iterator for checking exchange names
+        int counter = 0;
+        while(ourExchangesChecker.hasNext()){	
+        	String ourExchangeCheck = ourExchangesChecker.next(); //string for storing current value of name input from file
+        	Iterator<Exchange> theirExchangesChecker = loadedExchanges.iterator();
+        	while(theirExchangesChecker.hasNext()){
+        		Exchange theirExchange = theirExchangesChecker.next();
+        		String theirExchangeCheck = theirExchange.getExchangeSpecification().getExchangeName().toLowerCase(); //This is a STRING LIST of THEIR EXCHANGES
+        		//below is a debugging output
+        		//System.out.println(theirExchangeCheck + ourExchangeCheck);
+        		if(theirExchangeCheck.equals(ourExchangeCheck)){
+        			testVal[counter] = ourExchangeCheck; //assigning string value of all valid inputs from file
+        			//System.out.println(testVal[counter]); //for debugging
+        			counter++;  //value to determine if an error may have occurre in input file
+        		}
+        	}
+        }
+      	
+        ourExchangesChecker = configuredExchanges.iterator(); //iterator for file string values
+        if(counter == checkCount){		//if the counter and the checkcount are equal, all strings matched
+        	System.out.println("All exchanges valid");  //value to determine if an error may have occurre in input file
+        } else{ //if the counter and checkcount are not equal, the invalid string is to be printed. 
+        	System.out.println("Invalid exchange found");
+        	int i = 0;
+        	boolean tester = true;
+        	while(ourExchangesChecker.hasNext() && tester == true){
+        		ExCheck = ourExchangesChecker.next();
+        		//System.out.println(ExCheck + testVal[i]);
+        		if(ExCheck != testVal[i]){
+        			tester = false;
+        			System.out.println(ExCheck); //print invalid exchange
+        		}
+        		i++;
+        		
+        	}
+        }
+        
+        //End of config.properties check
+        
         loadedExchangesIterator = loadedExchanges.iterator();
         while(loadedExchangesIterator.hasNext()) {
             Exchange loadedExchange = loadedExchangesIterator.next();
