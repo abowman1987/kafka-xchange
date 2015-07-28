@@ -97,15 +97,9 @@ public class TickProducer {
             loadedExchanges.add(loadedExchange);
         }
 
-        Iterator<String> ourExchangesCounter = configuredExchanges.iterator(); //iterator for loop determining number of exchanges in input file
-        int checkCount = 0; //counter for determining the maximum number of array indices for an input check
-        while(ourExchangesCounter.hasNext()){
-        	checkCount++;
-        	ourExchangesCounter.next();
-        }
-        
-        String[] testVal = new String[checkCount + 1]; 	//string array for storing values checked within file
+        String[] testVal = new String[configuredExchanges.size()]; 	//string array for storing values checked within file
         Iterator<String> ourExchangesChecker = configuredExchanges.iterator(); 	//iterator for checking exchange names
+
         int counter = 0;
         while(ourExchangesChecker.hasNext()){	
         	String ourExchangeCheck = ourExchangesChecker.next(); //string for storing current value of name input from file
@@ -124,7 +118,7 @@ public class TickProducer {
         }
       	
         ourExchangesChecker = configuredExchanges.iterator(); //iterator for file string values
-        if(counter == checkCount){		//if the counter and the checkcount are equal, all strings matched
+        if(counter == configuredExchanges.size()){		//if the counter and the checkcount are equal, all strings matched
         	System.out.println("All exchanges valid");  //value to determine if an error may have occurre in input file
         } else{ //if the counter and checkcount are not equal, the invalid string is to be printed. 
         	System.out.println("Invalid exchange found");
